@@ -1,17 +1,31 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const {client, seed} = require('./db')
+
+
+
+
 
 app.use('/dist', express.static(path.join(__dirname, '../dist')));
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
 app.get('/', (req, res)=> res.sendFile(path.join(__dirname, '../public/index.html'))); 
+app.use(express.json())
+app.use('/api', require('./api'))
+
 
 const init = async()=> {
+  
+  await client.connect() 
+  console.log('connected to db');
+  if (process.env.SYNC){
+    await seed()
+  }
+  
+  
 
-  console.log('do seed and sync here for database');
-
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3088;
   app.listen(port, ()=> {
     console.log(`listening on port ${port}`)
   });
